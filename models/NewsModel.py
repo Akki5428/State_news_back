@@ -17,6 +17,11 @@ class News(BaseModel):
     approvedBy: Optional[str] = None
     api_source: Optional[str] = None
     news_date: datetime = datetime.utcnow()
+    views: int = 0
+    likes: int = 0
+    commentsCount: int = 0
+    isBreaking: bool = False # Admin marks this OR automated detection
+    isTrending: bool = False # Based on engagement
 
 class NewsOut(News):
     id : str = Field(alias="_id")

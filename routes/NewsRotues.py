@@ -1,5 +1,5 @@
 from fastapi import APIRouter,HTTPException
-from controllers.NewsController import addNews,getNews,getNewsById,getNewsByStateId,getNewsByCityId,deleteNews,approve_news
+from controllers.NewsController import addNews,getNews,getNewsById,getNewsByStateId,getNewsByCityId,deleteNews,approve_news,get_published_news,get_breaking_news,get_trending_news
 from models.NewsModel import News,ApproveNews
 from bson import ObjectId
 
@@ -32,6 +32,17 @@ async def delete_News(news_id:str):
 async def approve_News(news_id:str,approve:ApproveNews):
     return await approve_news(news_id,approve)
 
+@router.get("/news/published/")
+async def get_PublishedNews():
+    return await get_published_news()
+
+@router.get("/news/breaking/")
+async def get_BreakingNews():
+    return await get_breaking_news()
+
+@router.get("/news/trending/")
+async def get_TrendingNews():
+    return await get_trending_news()
 
 
 
