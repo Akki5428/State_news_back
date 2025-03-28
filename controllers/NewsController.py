@@ -80,76 +80,66 @@ async def getNewsById(news_id:str):
     return NewsOut(**news)
 
 async def getNewsByStateId(state_id:str):
-    news = await news_collection.find_one({"stateId":ObjectId(state_id)})
+   news = await news_collection.find({"stateId":ObjectId(state_id)}).sort("news_date", -1).to_list()
+   print(news)
+   for n in news:
+        if "cityId" in n and isinstance(n["cityId"], ObjectId):
+            n["cityId"] = str(n["cityId"])
+        
+        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+            n["stateId"] = str(n["stateId"])
+
+        if "userId" in n and isinstance(n["userId"], ObjectId):
+            n["userId"] = str(n["userId"])
  
-    if "cityId" in news and isinstance(news["cityId"], ObjectId):
-        news["cityId"] = str(news["cityId"])
+        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+
+        if city:
+            city["_id"] = str(city["_id"])
+            n["city"] = city
         
-    if "stateId" in news and isinstance(news["stateId"], ObjectId):  
-        news["stateId"] = str(news["stateId"])
+        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+        if state:
+            state["_id"] = str(state["_id"])
+            n["state"] = state
 
-    if "userId" in news and isinstance(news["userId"], ObjectId):
-        news["userId"] = str(news["userId"])
-        
-    city = await city_collection.find_one({"_id":ObjectId(news["cityId"])})
-  
-    if city:
-        city["_id"] = str(city["_id"])
-        news["city"] = city
-        print(city)
-        
-    state = await state_collection.find_one({"_id":ObjectId(news["stateId"])})
-    if state:
-        state["_id"] = str(state["_id"])
-        news["state"] = state
+        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            n["user"] = user
 
-    user = await user_collection.find_one({"_id":ObjectId(news["userId"])})
-    if user:
-        role = await role_collection.find_one({"_id":ObjectId(user["role_id"])})
-        if role:
-            role["_id"] = str(role["_id"])
-            user["role"] = role
-        user["_id"] = str(user["_id"])
-        news["user"] = user
-
-
-    return NewsOut(**news)
+   return [NewsOut(**n) for n in news]
 
 async def getNewsByCityId(city_id:str):
-    news = await news_collection.find_one({"cityId":ObjectId(city_id)})
+   news = await news_collection.find({"cityId":ObjectId(city_id)}).sort("news_date", -1).to_list()
+   print(news)
+   for n in news:
+        if "cityId" in n and isinstance(n["cityId"], ObjectId):
+            n["cityId"] = str(n["cityId"])
+        
+        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+            n["stateId"] = str(n["stateId"])
+
+        if "userId" in n and isinstance(n["userId"], ObjectId):
+            n["userId"] = str(n["userId"])
  
-    if "cityId" in news and isinstance(news["cityId"], ObjectId):
-        news["cityId"] = str(news["cityId"])
+        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+
+        if city:
+            city["_id"] = str(city["_id"])
+            n["city"] = city
         
-    if "stateId" in news and isinstance(news["stateId"], ObjectId):  
-        news["stateId"] = str(news["stateId"])
+        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+        if state:
+            state["_id"] = str(state["_id"])
+            n["state"] = state
 
-    if "userId" in news and isinstance(news["userId"], ObjectId):
-        news["userId"] = str(news["userId"])
-        
-    city = await city_collection.find_one({"_id":ObjectId(news["cityId"])})
-  
-    if city:
-        city["_id"] = str(city["_id"])
-        news["city"] = city
-        print(city)
-        
-    state = await state_collection.find_one({"_id":ObjectId(news["stateId"])})
-    if state:
-        state["_id"] = str(state["_id"])
-        news["state"] = state
+        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            n["user"] = user
 
-    user = await user_collection.find_one({"_id":ObjectId(news["userId"])})
-    if user:
-        role = await role_collection.find_one({"_id":ObjectId(user["role_id"])})
-        if role:
-            role["_id"] = str(role["_id"])
-            user["role"] = role
-        user["_id"] = str(user["_id"])
-        news["user"] = user
-
-
-    return NewsOut(**news)
+   return [NewsOut(**n) for n in news]
 
 async def deleteNews(news_id:str):
     news = await news_collection.delete_one({"_id":ObjectId(news_id)})
@@ -231,7 +221,7 @@ async def get_breaking_news():
     return [NewsOut(**n) for n in news]
 
 async def get_trending_news():
-    time_threshold = datetime.utcnow() - timedelta(hours=48)
+    time_threshold = datetime.utcnow() - timedelta(hours=100)
     
     trending_news = await news_collection.find({"news_date": {"$gte": time_threshold}}).to_list()
 
@@ -303,3 +293,64 @@ async def get_popular_news():
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
+
+async def get_category_news():
+    news = await news_collection.find().sort("news_date", -1).to_list()
+    for n in news:
+        if "cityId" in n and isinstance(n["cityId"], ObjectId):
+            n["cityId"] = str(n["cityId"])
+        
+        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+            n["stateId"] = str(n["stateId"])
+
+        if "userId" in n and isinstance(n["userId"], ObjectId):
+            n["userId"] = str(n["userId"])
+ 
+        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+
+        if city:
+            city["_id"] = str(city["_id"])
+            n["city"] = city
+        
+        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+        if state:
+            state["_id"] = str(state["_id"])
+            n["state"] = state
+
+        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            n["user"] = user
+
+    return [NewsOut(**n) for n in news]
+
+async def get_categoryByName_news(category:str):
+    news = await news_collection.find({"category":category }).sort("news_date", -1).to_list()
+    for n in news:
+        if "cityId" in n and isinstance(n["cityId"], ObjectId):
+            n["cityId"] = str(n["cityId"])
+        
+        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+            n["stateId"] = str(n["stateId"])
+
+        if "userId" in n and isinstance(n["userId"], ObjectId):
+            n["userId"] = str(n["userId"])
+ 
+        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+
+        if city:
+            city["_id"] = str(city["_id"])
+            n["city"] = city
+        
+        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+        if state:
+            state["_id"] = str(state["_id"])
+            n["state"] = state
+
+        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            n["user"] = user
+
+    return [NewsOut(**n) for n in news]
+
