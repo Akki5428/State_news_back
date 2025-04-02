@@ -10,8 +10,7 @@ class News(BaseModel):
     category: str
     stateId: str
     cityId: str
-    img_url1: Optional[str] = None
-    img_url2: Optional[str] = None
+    images: Optional[List[str]] = None
     status: str = "inProgress"  # Default status when created
     rejectReason: Optional[str] = None
     approvedBy: Optional[str] = None
@@ -39,5 +38,15 @@ class ApproveNews(BaseModel):
     status: str  # "published" or "rejected"
     adminId: str  # Admin user ID
     rejectReason: Optional[str] = None
+
+class RejectedNews(BaseModel):
+    id:str
+    rejectReason: Optional[str] = None
+
+class UpdateNewsRequest(BaseModel):
+    id: str
+    title: Optional[str] = None
+    content: Optional[str] = None
+    removeImages: Optional[List[str]] = []  # List of image URLs to remove
 
 

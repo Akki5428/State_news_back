@@ -1,4 +1,4 @@
-from models.NewsModel import News,NewsOut,ApproveNews
+from models.NewsModel import News,NewsOut,ApproveNews,RejectedNews,UpdateNewsRequest
 from bson import ObjectId
 from config.database import city_collection,state_collection,news_collection,user_collection,role_collection
 from fastapi import APIRouter,HTTPException
@@ -450,3 +450,41 @@ async def approve_news(id:str):
         return JSONResponse(content={"message":"Your News is Published"},status_code=201)
     else:
         raise HTTPException(status_code=404,detail="News not Found")
+    
+async def reject_news(reject:RejectedNews):
+    news = await news_collection.find_one({"_id" : ObjectId(reject.id)})
+    print(news)
+    print(reject.id)
+    if news:
+        print(news)
+        await news_collection.update_one(
+        {"_id": ObjectId(reject.id)},
+        {"$set": {"status": "rejected", "rejectReason": reject.rejectReason}}
+        )
+        return JSONResponse(content={"message":"Your News is Rejected"},status_code=201)
+    else:
+        raise HTTPException(status_code=404,detail="News not Found")
+
+
+async def update_news(update_data: UpdateNewsRequest):
+    news = await news_collection.find_one({"_id": ObjectId(update_data.id)})
+
+    if not news:
+        raise HTTPException(status_code=404, detail="News not found")
+
+    # Remove selected images from the existing image list
+    updated_images = [img for img in news.get("images", []) if img not in update_data.removeImages]
+
+    # Prepare update fields
+    update_fields = {}
+    if update_data.title:
+        update_fields["title"] = update_data.title
+    if update_data.content:
+        update_fields["content"] = update_data.content
+    update_fields["images"] = updated_images  # Save updated image list
+
+    # Perform update
+    await news_collection.update_one(
+        {"_id": ObjectId(update_data.id)},
+        {"$set": update_fields}
+    )
