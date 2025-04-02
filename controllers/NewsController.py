@@ -5,49 +5,7 @@ from fastapi import APIRouter,HTTPException
 from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta
 
-
-async def addNews(news:News):
-    news = news.dict()
-    news["cityId"] = ObjectId(news["cityId"])
-    news["stateId"] = ObjectId(news["stateId"]) 
-    news["userId"] = ObjectId(news["userId"])
-    pub_news = await news_collection.insert_one(news)
-    print(pub_news)
-    return JSONResponse(content={"message":"News Added"},status_code=201)
-
-async def getNews():
-    news = await news_collection.find().to_list()
-    for n in news:
-        if "cityId" in n and isinstance(n["cityId"], ObjectId):
-            n["cityId"] = str(n["cityId"])
-        
-        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
-            n["stateId"] = str(n["stateId"])
-
-        if "userId" in n and isinstance(n["userId"], ObjectId):
-            n["userId"] = str(n["userId"])
- 
-        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
-
-        if city:
-            city["_id"] = str(city["_id"])
-            n["city"] = city
-        
-        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
-        if state:
-            state["_id"] = str(state["_id"])
-            n["state"] = state
-
-        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
-        if user:
-            user["_id"] = str(user["_id"])
-            n["user"] = user
-
-    return [NewsOut(**n) for n in news]
-
-async def getNewsById(news_id:str):
-    news = await news_collection.find_one({"_id":ObjectId(news_id)})
- 
+async def make_roles(news):
     if "cityId" in news and isinstance(news["cityId"], ObjectId):
         news["cityId"] = str(news["cityId"])
         
@@ -76,38 +34,117 @@ async def getNewsById(news_id:str):
         user["_id"] = str(user["_id"])
         news["user"] = user
 
+    return news
+    
 
+async def addNews(news:News):
+    news = news.dict()
+    news["cityId"] = ObjectId(news["cityId"])
+    news["stateId"] = ObjectId(news["stateId"]) 
+    news["userId"] = ObjectId(news["userId"])
+    pub_news = await news_collection.insert_one(news)
+    print(pub_news)
+    return JSONResponse(content={"message":"News Added"},status_code=201)
+
+async def getNews():
+    news = await news_collection.find().to_list()
+    # for n in news:
+    #     if "cityId" in n and isinstance(n["cityId"], ObjectId):
+    #         n["cityId"] = str(n["cityId"])
+        
+    #     if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+    #         n["stateId"] = str(n["stateId"])
+
+    #     if "userId" in n and isinstance(n["userId"], ObjectId):
+    #         n["userId"] = str(n["userId"])
+ 
+    #     city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+
+    #     if city:
+    #         city["_id"] = str(city["_id"])
+    #         n["city"] = city
+        
+    #     state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+    #     if state:
+    #         state["_id"] = str(state["_id"])
+    #         n["state"] = state
+
+    #     user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+    #     if user:
+    #         user["_id"] = str(user["_id"])
+    #         n["user"] = user
+
+    for i in range(len(news)):
+        news[i] = await make_roles(news[i])  
+    return [NewsOut(**n) for n in news]
+
+async def getNewsById(news_id:str):
+    news = await news_collection.find_one({"_id":ObjectId(news_id)})
+ 
+    if news is None:
+        raise HTTPException(status_code=404, detail="News not found")
+    # if "cityId" in news and isinstance(news["cityId"], ObjectId):
+    #     news["cityId"] = str(news["cityId"])
+        
+    # if "stateId" in news and isinstance(news["stateId"], ObjectId):  
+    #     news["stateId"] = str(news["stateId"])
+
+    # if "userId" in news and isinstance(news["userId"], ObjectId):
+    #     news["userId"] = str(news["userId"])
+        
+    # city = await city_collection.find_one({"_id":ObjectId(news["cityId"])})
+    # if city:
+    #     city["_id"] = str(city["_id"])
+    #     news["city"] = city
+        
+    # state = await state_collection.find_one({"_id":ObjectId(news["stateId"])})
+    # if state:
+    #     state["_id"] = str(state["_id"])
+    #     news["state"] = state
+
+    # user = await user_collection.find_one({"_id":ObjectId(news["userId"])})
+    # if user:
+    #     role = await role_collection.find_one({"_id":ObjectId(user["role_id"])})
+    #     if role:
+    #         role["_id"] = str(role["_id"])
+    #         user["role"] = role
+    #     user["_id"] = str(user["_id"])
+    #     news["user"] = user
+
+    news = await make_roles(news) 
     return NewsOut(**news)
 
 async def getNewsByStateId(state_id:str):
    news = await news_collection.find({"stateId":ObjectId(state_id)}).sort("news_date", -1).to_list()
    print(news)
-   for n in news:
-        if "cityId" in n and isinstance(n["cityId"], ObjectId):
-            n["cityId"] = str(n["cityId"])
+#    for n in news:
+#         if "cityId" in n and isinstance(n["cityId"], ObjectId):
+#             n["cityId"] = str(n["cityId"])
         
-        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
-            n["stateId"] = str(n["stateId"])
+#         if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+#             n["stateId"] = str(n["stateId"])
 
-        if "userId" in n and isinstance(n["userId"], ObjectId):
-            n["userId"] = str(n["userId"])
+#         if "userId" in n and isinstance(n["userId"], ObjectId):
+#             n["userId"] = str(n["userId"])
  
-        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+#         city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
 
-        if city:
-            city["_id"] = str(city["_id"])
-            n["city"] = city
+#         if city:
+#             city["_id"] = str(city["_id"])
+#             n["city"] = city
         
-        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
-        if state:
-            state["_id"] = str(state["_id"])
-            n["state"] = state
+#         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+#         if state:
+#             state["_id"] = str(state["_id"])
+#             n["state"] = state
 
-        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
-        if user:
-            user["_id"] = str(user["_id"])
-            n["user"] = user
+#         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+#         if user:
+#             user["_id"] = str(user["_id"])
+#             n["user"] = user
 
+   for i in range(len(news)):
+        news[i] = await make_roles(news[i]) 
    return [NewsOut(**n) for n in news]
 
 async def getNewsByCityId(city_id:str):
@@ -148,7 +185,7 @@ async def deleteNews(news_id:str):
     else:
         return JSONResponse(content={"message":"News not found"},status_code=404)
     
-def approve_news(news_id: str, approval: ApproveNews):
+def get_approve_news(news_id: str, approval: ApproveNews):
     if approval.status not in ["published", "rejected"]:
         raise HTTPException(status_code=400, detail="Invalid status")
     
@@ -354,3 +391,62 @@ async def get_categoryByName_news(category:str):
 
     return [NewsOut(**n) for n in news]
 
+async def get_recent_news():
+    news = await news_collection.find().sort("news_date", -1).limit(5).to_list(5)
+    for n in news:
+        if "cityId" in n and isinstance(n["cityId"], ObjectId):
+            n["cityId"] = str(n["cityId"])
+        
+        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+            n["stateId"] = str(n["stateId"])
+
+        if "userId" in n and isinstance(n["userId"], ObjectId):
+            n["userId"] = str(n["userId"])
+ 
+        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+
+        if city:
+            city["_id"] = str(city["_id"])
+            n["city"] = city
+        
+        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+        if state:
+            state["_id"] = str(state["_id"])
+            n["state"] = state
+
+        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            n["user"] = user
+
+    return [NewsOut(**n) for n in news]
+
+async def get_news_sort_bydate():
+
+    news = await news_collection.find().sort("news_date", -1).to_list()
+
+    for i in range(len(news)):
+        news[i] = await make_roles(news[i]) 
+    return [NewsOut(**n) for n in news]
+
+async def delete_news(id:str):
+    res = await news_collection.delete_one({"_id" : ObjectId(id)})
+
+    if res:
+        print(res)
+    else:
+        raise HTTPException(status_code=404,detail="News not Found")
+
+async def approve_news(id:str):
+    news = await news_collection.find_one({"_id" : ObjectId(id)})
+    print(news)
+    print(id)
+    if news:
+        print(news)
+        await news_collection.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": {"status": "published"}}
+        )
+        return JSONResponse(content={"message":"Your News is Published"},status_code=201)
+    else:
+        raise HTTPException(status_code=404,detail="News not Found")

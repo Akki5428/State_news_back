@@ -12,11 +12,11 @@ async def addUser(user:User):
     return {"Message":"user created successfully"}
     
 
-
 # async def getAllUsers():
 #     users = await user_collection.find().to_list()
 #     print("users",users)
 #     return [UserOut(**user) for user in users]
+
 async def getAllUsers():
     users = await user_collection.find().to_list(length=None)
 
@@ -51,4 +51,38 @@ async def loginUser(request:UserLogin):
         return {"message":"user login success","user":UserOut(**foundUser)}
     else:
         raise HTTPException(status_code=404,detail="Invalid password")
+
+async def get_recentUser():
+    recent_user = await user_collection.find().sort("created_at", -1).limit(5).to_list(5)
     
+    for user in recent_user:
+        # Convert role_id from ObjectId to str before validation
+        if "role_id" in user and isinstance(user["role_id"], ObjectId):
+            user["role_id"] = str(user["role_id"])
+        
+        # Fetch role details
+        role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})  
+        
+        if role:
+            role["_id"] = str(role["_id"])  # Convert role _id to string
+            user["role"] = role
+   
+    return [UserOut(**user) for user in recent_user]
+
+
+async def get_AllUsers_byDate():
+    users = await user_collection.find().sort("created_at",-1).to_list(length=None)
+
+    for user in users:
+        # Convert role_id from ObjectId to str before validation
+        if "role_id" in user and isinstance(user["role_id"], ObjectId):
+            user["role_id"] = str(user["role_id"])
+        
+        # Fetch role details
+        role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})  
+        
+        if role:
+            role["_id"] = str(role["_id"])  # Convert role _id to string
+            user["role"] = role
+
+    return [UserOut(**user) for user in users]

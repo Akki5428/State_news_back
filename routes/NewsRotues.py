@@ -1,5 +1,5 @@
 from fastapi import APIRouter,HTTPException
-from controllers.NewsController import addNews,getNews,getNewsById,getNewsByStateId,getNewsByCityId,deleteNews,approve_news,get_published_news,get_breaking_news,get_trending_news,get_popular_news,get_category_news,get_categoryByName_news
+from controllers.NewsController import addNews,getNews,getNewsById,getNewsByStateId,getNewsByCityId,deleteNews,approve_news,get_published_news,get_breaking_news,get_trending_news,get_popular_news,get_category_news,get_categoryByName_news,get_recent_news,get_news_sort_bydate,delete_news,get_approve_news
 from models.NewsModel import News,ApproveNews
 from bson import ObjectId
 
@@ -30,7 +30,7 @@ async def delete_News(news_id:str):
 
 @router.put("/news/{news_id}/approve")
 async def approve_News(news_id:str,approve:ApproveNews):
-    return await approve_news(news_id,approve)
+    return await get_approve_news(news_id,approve)
 
 @router.get("/news/published/")
 async def get_PublishedNews():
@@ -55,3 +55,19 @@ async def get_CategoryNews():
 @router.get("/news/category/{category_name}")
 async def get_CategoryByNameNews(category_name:str):
     return await get_categoryByName_news(category_name)
+
+@router.get("/news/recent/")
+async def get_recentNews():
+    return await get_recent_news()
+
+@router.get("/news/new/")
+async def get_newsSortbyDate():
+    return await get_news_sort_bydate()
+
+@router.delete("/news/delete/{news_id}")
+async def deleteNews(news_id:str):
+    return await delete_news(news_id)
+
+@router.patch("/news/approve/{news_id}")
+async def approveNews(news_id:str):
+    return await approve_news(news_id)

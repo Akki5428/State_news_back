@@ -1,6 +1,7 @@
 from pydantic import BaseModel,Field,validator
 from bson import ObjectId
 from typing import Optional,Dict,Any
+from datetime import datetime
 import bcrypt
 
 
@@ -12,6 +13,8 @@ class User(BaseModel):
     pressId:str
     organization:str
     role_id:str
+    created_at:datetime = datetime.utcnow()
+    status:str
     
     @validator("password",pre=True,always=True)
     def encrypt_password(cls,v):
