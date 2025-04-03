@@ -1,4 +1,4 @@
-from models.user_model import User,UserOut,UserLogin
+from models.user_model import User,UserOut,UserLogin,RejectedUser
 from bson import ObjectId
 from config.database import user_collection,role_collection
 from fastapi import HTTPException
@@ -151,18 +151,18 @@ async def block_user(id:str):
         raise HTTPException(status_code=404,detail="User not Found")
  
 
-# async def reject_news(reject:RejectedNews):
-#     news = await news_collection.find_one({"_id" : ObjectId(reject.id)})
-#     print(news)
-#     print(reject.id)
-#     if news:
-#         print(news)
-#         await news_collection.update_one(
-#         {"_id": ObjectId(reject.id)},
-#         {"$set": {"status": "rejected", "rejectReason": reject.rejectReason}}
-#         )
-#         return JSONResponse(content={"message":"Your News is Rejected"},status_code=201)
-#     else:
-#         raise HTTPException(status_code=404,detail="News not Found")
+async def reject_user(reject:RejectedUser):
+    user = await user_collection.find_one({"_id" : ObjectId(reject.id)})
+    print(user)
+    print(reject.id)
+    if user:
+        print(user)
+        await user_collection.update_one(
+        {"_id": ObjectId(reject.id)},
+        {"$set": {"status": "rejected", "rejectReason": reject.rejectReason}}
+        )
+        return JSONResponse(content={"message":"User is Rejected"},status_code=201)
+    else:
+        raise HTTPException(status_code=404,detail="User not Found")
 
     

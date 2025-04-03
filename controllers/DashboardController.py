@@ -11,11 +11,11 @@ async def get_dashboard_stats():
     pending_news = len([n for n in news if n["status"] == "pending"])
 
     # Calculate new registrations in the last 2 days
-    two_days_ago = datetime.utcnow() - timedelta(days=3)
+    two_days_ago = datetime.utcnow() - timedelta(days=5)
 
-    new_registrations = len([u for u in users if u["created_at"] and datetime.strptime(u["created_at"], "%Y-%m-%dT%H:%M:%SZ") >= two_days_ago])
+    new_registrations = len([u for u in users if u["created_at"] and u["created_at"] >= two_days_ago])
     # print(datetime.strptime(users[0]["created_at"], "%Y-%m-%dT%H:%M:%S"),two_days_ago)
-    print(datetime.strptime(users[0]["created_at"], "%Y-%m-%dT%H:%M:%SZ"),two_days_ago)
+    # print(datetime.strptime(users[0]["created_at"], "%Y-%m-%dT%H:%M:%SZ"),two_days_ago)
 
     return {
         "total_users": total_users,

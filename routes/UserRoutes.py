@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from controllers.user_controller import addUser,getAllUsers,loginUser,get_recentUser,get_AllUsers_byDate,get_user_byId,approve_user,delete_user,block_user
-from models.user_model import User,UserOut,UserLogin
+from controllers.user_controller import addUser,getAllUsers,loginUser,get_recentUser,get_AllUsers_byDate,get_user_byId,approve_user,delete_user,block_user,reject_user
+from models.user_model import User,UserOut,UserLogin,RejectedUser
 
 router = APIRouter()
 
@@ -39,3 +39,7 @@ async def blockUser(user_id:str):
 @router.delete("/user/{user_id}")
 async def deleteUser(user_id:str):
     return await delete_user(user_id)
+
+@router.put("/user/rejected/")
+async def rejectUser(reject:RejectedUser):
+    return await reject_user(reject)

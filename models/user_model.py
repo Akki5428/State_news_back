@@ -42,7 +42,11 @@ class UserOut(User):
 
 class UserLogin(BaseModel):
     email:str
-    password:str    
+    password:str  
+
+class RejectedUser(BaseModel):
+    id:str
+    rejectReason: Optional[str] = None  
 
     
         
