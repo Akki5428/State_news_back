@@ -14,7 +14,8 @@ class User(BaseModel):
     organization:str
     role_id:str
     created_at:datetime = datetime.utcnow()
-    status:str
+    status:str = "pending"
+    rejectReason:Optional[str] = None 
     
     @validator("password",pre=True,always=True)
     def encrypt_password(cls,v):

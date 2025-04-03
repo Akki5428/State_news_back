@@ -86,3 +86,83 @@ async def get_AllUsers_byDate():
             user["role"] = role
 
     return [UserOut(**user) for user in users]
+
+
+async def get_user_byId(id:set):
+    user = await user_collection.find_one({"_id":ObjectId(id)})
+
+    if user is None:
+        raise HTTPException(status_code=404,detail="User not found")
+
+    if "role_id" in user and isinstance(user["role_id"], ObjectId):
+            user["role_id"] = str(user["role_id"])
+        
+        # Fetch role details
+    role = await role_collection.find_one({"_id": ObjectId(user["role_id"])})  
+        
+    if role:
+        role["_id"] = str(role["_id"])  # Convert role _id to string
+        user["role"] = role
+    
+    return UserOut(**user)
+
+
+async def delete_user(id:str):
+    res = await user_collection.delete_one({"_id" : ObjectId(id)})
+
+    if res:
+        print(res)
+    else:
+        raise HTTPException(status_code=404,detail="User not Found")
+
+async def approve_user(id:str):
+    user = await user_collection.find_one({"_id" : ObjectId(id)})
+    print(user)
+    print(id)
+    if user:
+        print(user)
+        await user_collection.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": {"status": "approved"}}
+        )
+        return JSONResponse(content={"message":"User is Approved"},status_code=201)
+    else:
+        raise HTTPException(status_code=404,detail="User not Found")
+    
+async def block_user(id:str):
+    user = await user_collection.find_one({"_id" : ObjectId(id)})
+    print(user)
+    print(id)
+    if user:
+        print(user)
+        if user["status"] == "approved":
+            await user_collection.update_one(
+            {"_id": ObjectId(id)},
+            {"$set": {"status": "block"}}
+            )
+            return JSONResponse(content={"message":"User is Blocked"},status_code=201)
+        else:
+            await user_collection.update_one(
+            {"_id": ObjectId(id)},
+            {"$set": {"status": "approved"}}
+            )
+            return JSONResponse(content={"message":"User is UnBlocked"},status_code=201)
+    else:
+        raise HTTPException(status_code=404,detail="User not Found")
+ 
+
+# async def reject_news(reject:RejectedNews):
+#     news = await news_collection.find_one({"_id" : ObjectId(reject.id)})
+#     print(news)
+#     print(reject.id)
+#     if news:
+#         print(news)
+#         await news_collection.update_one(
+#         {"_id": ObjectId(reject.id)},
+#         {"$set": {"status": "rejected", "rejectReason": reject.rejectReason}}
+#         )
+#         return JSONResponse(content={"message":"Your News is Rejected"},status_code=201)
+#     else:
+#         raise HTTPException(status_code=404,detail="News not Found")
+
+    

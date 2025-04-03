@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from controllers.user_controller import addUser,getAllUsers,loginUser,get_recentUser,get_AllUsers_byDate
+from controllers.user_controller import addUser,getAllUsers,loginUser,get_recentUser,get_AllUsers_byDate,get_user_byId,approve_user,delete_user,block_user
 from models.user_model import User,UserOut,UserLogin
 
 router = APIRouter()
@@ -23,3 +23,19 @@ async def get_RecentUser():
 @router.get("/user/new/")
 async def get_NewUser():
     return await get_AllUsers_byDate()
+
+@router.get("/user/{user_id}")
+async def get_userById(user_id:str):
+    return await get_user_byId(user_id)
+
+@router.patch("/user/approve/{user_id}")
+async def approveUser(user_id:str):
+    return await approve_user(user_id)
+
+@router.patch("/user/block/{user_id}")
+async def blockUser(user_id:str):
+    return await block_user(user_id)
+
+@router.delete("/user/{user_id}")
+async def deleteUser(user_id:str):
+    return await delete_user(user_id)
