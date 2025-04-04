@@ -13,6 +13,8 @@ class Comment(BaseModel):
 
 class CommentOut(Comment):
     id:str = Field(alias="_id")
+    news: Optional[Dict[str,Any]] = None
+    user: Optional[Dict[str,Any]] = None
 
     @validator("id",pre=True,always=True)
     def convert_objectId(cls,v):

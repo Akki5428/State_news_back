@@ -518,3 +518,33 @@ async def get_recent_news_by_user(id:str):
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
+
+async def get_news_by_user(id:str):
+    news = await news_collection.find({"userId": ObjectId(id)}).sort("news_date", -1).to_list()
+    for n in news:
+        if "cityId" in n and isinstance(n["cityId"], ObjectId):
+            n["cityId"] = str(n["cityId"])
+        
+        if "stateId" in n and isinstance(n["stateId"], ObjectId):  
+            n["stateId"] = str(n["stateId"])
+
+        if "userId" in n and isinstance(n["userId"], ObjectId):
+            n["userId"] = str(n["userId"])
+ 
+        city = await city_collection.find_one({"_id":ObjectId(n["cityId"])})
+
+        if city:
+            city["_id"] = str(city["_id"])
+            n["city"] = city
+        
+        state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
+        if state:
+            state["_id"] = str(state["_id"])
+            n["state"] = state
+
+        user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            n["user"] = user
+
+    return [NewsOut(**n) for n in news]

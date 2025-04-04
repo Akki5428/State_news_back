@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from models.CommentModel import Comment,CommentOut
-from config.database import news_collection,comment_collection
+from config.database import news_collection,comment_collection,user_collection
 from bson import ObjectId
 
 
@@ -43,6 +43,22 @@ async def get_all_comments():
         c["userId"] = str(c["userId"])
         c["newsId"] = str(c["newsId"])
         c["rId"] = str(c["rId"])
+
+        news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
+
+        # print(news)
+        if news:
+            news["_id"] = str(news["_id"])
+            news["userId"] = str(news["userId"])
+            news["stateId"] = str(news["stateId"])
+            news["cityId"] = str(news["cityId"])
+            c["news"] = news
+        
+        user = await user_collection.find_one({"_id": ObjectId(c["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
+            c["user"] = user
     return [CommentOut(**comment) for comment in comments]
 
 async def get_recent_comments(id:str):
@@ -51,4 +67,18 @@ async def get_recent_comments(id:str):
         c["userId"] = str(c["userId"])
         c["newsId"] = str(c["newsId"])
         c["rId"] = str(c["rId"])
+
+        news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
+        if news:
+            news["_id"] = str(news["_id"])
+            news["userId"] = str(news["userId"])
+            news["stateId"] = str(news["stateId"])
+            news["cityId"] = str(news["cityId"])
+            c["news"] = news
+        
+        user = await user_collection.find_one({"_id": ObjectId(c["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
+            c["user"] = user
     return [CommentOut(**comment) for comment in comments]
