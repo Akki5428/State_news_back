@@ -6,7 +6,8 @@ from datetime import datetime
 class Comment(BaseModel):
     newsId: str
     userId: str
-    interaction_type: List[str]
+    rId: str
+    # interaction_type: List[str]
     comment_text: str
     created_at: datetime = datetime.utcnow()
 

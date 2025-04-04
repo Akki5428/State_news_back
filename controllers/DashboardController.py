@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from config.database import user_collection,news_collection
+from bson import ObjectId
 
 async def get_dashboard_stats():
     users = await user_collection.find().to_list()
@@ -8,7 +9,7 @@ async def get_dashboard_stats():
     total_users = len(users)
     total_news = len(news)
     print(news[0]["status"])
-    pending_news = len([n for n in news if n["status"] == "pending"])
+    pending_news = len([n for n in news if n["status"] == "inProgress"])
 
     # Calculate new registrations in the last 2 days
     two_days_ago = datetime.utcnow() - timedelta(days=5)
@@ -22,4 +23,22 @@ async def get_dashboard_stats():
         "total_news": total_news,
         "pending_news": pending_news,
         "new_registrations": new_registrations
+    }
+
+async def get_journ_dashboard_stats(id:str):
+    news = await news_collection.find({"userId":ObjectId(id)}).to_list()
+    n = [x["views"] for x in news if x["status"] == "published"]
+    print(n)
+
+    total_news = len(news)
+    print(news[0]["status"])
+    publshied_news = len([n for n in news if n["status"] == "published"])
+    draft_news = len([n for n in news if n["status"] == "draft"])
+    total_views = sum(n.get("views", 0) for n in news if n["status"] == "published")   
+
+    return {
+        "total_news": total_news,
+        "publshied_news": publshied_news,
+        "draft_news": draft_news,
+        "total_views": total_views
     }
