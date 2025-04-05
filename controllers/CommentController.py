@@ -31,8 +31,13 @@ async def add_comment(data: Comment):
     if not news:
         raise HTTPException(status_code=404, detail="News not found")
     
+    data = data.dict()
     # Insert the comment into the database
-    res = await comment_collection.insert_one(data.dict())
+    data["newsId"] = ObjectId(data["newsId"])
+    data["userId"] = ObjectId(data["userId"])
+    data["rId"] = ObjectId(data["rId"])
+    data["parentCommentId"] = ObjectId(data["parentCommentId"]) if data["parentCommentId"] else None
+    res = await comment_collection.insert_one(data)
     
     return {"message": "Comment added successfully"}
 
@@ -43,6 +48,7 @@ async def get_all_comments():
         c["userId"] = str(c["userId"])
         c["newsId"] = str(c["newsId"])
         c["rId"] = str(c["rId"])
+        c["parentCommentId"] = ObjectId(c["parentCommentId"]) if c["parentCommentId"] else None
 
         news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
 
@@ -67,6 +73,7 @@ async def get_recent_comments(id:str):
         c["userId"] = str(c["userId"])
         c["newsId"] = str(c["newsId"])
         c["rId"] = str(c["rId"])
+        c["parentCommentId"] = ObjectId(c["parentCommentId"]) if c["parentCommentId"] else None
 
         news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
         if news:
@@ -82,3 +89,55 @@ async def get_recent_comments(id:str):
             user["role_id"] = str(user["role_id"])
             c["user"] = user
     return [CommentOut(**comment) for comment in comments]
+
+async def get_user_comments(id:str):
+    comments = await comment_collection.find({"rId":ObjectId(id)}).sort("created_at", -1).to_list()
+    for c in comments:
+        c["userId"] = str(c["userId"])
+        c["newsId"] = str(c["newsId"])
+        c["rId"] = str(c["rId"])
+        c["parentCommentId"] = ObjectId(c["parentCommentId"]) if c["parentCommentId"] else None
+
+        news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
+        if news:
+            news["_id"] = str(news["_id"])
+            news["userId"] = str(news["userId"])
+            news["stateId"] = str(news["stateId"])
+            news["cityId"] = str(news["cityId"])
+            c["news"] = news
+        
+        user = await user_collection.find_one({"_id": ObjectId(c["userId"])})
+        if user:
+            user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
+            c["user"] = user
+    return [CommentOut(**comment) for comment in comments]
+
+async def get_comment_by_news(id:str):
+    news = await news_collection.find({"userId":ObjectId(id)}).to_list()
+    result = []
+
+    for n in news:
+        news_id = str(n["_id"])
+        comments = await comment_collection.find({"newsId":ObjectId(news_id)}).to_list()
+
+        formatted_comments = []
+        for c in comments:
+            user = await user_collection.find_one({"_id":ObjectId(c["userId"])})
+            user["_id"] = str(user["_id"])
+            formatted_comments.append({
+                "id": str(c["_id"]),
+                "user": user,  # You can use c.get("userid", "Unknown") if unsure
+                "text": c["comment_text"],
+                "created_at": c["created_at"]
+            })
+
+
+        result.append({
+            "id": news_id,
+            "title": n["title"],
+            "comments": formatted_comments
+        })
+
+    return result
+

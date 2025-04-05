@@ -9,6 +9,7 @@ class Comment(BaseModel):
     rId: str
     # interaction_type: List[str]
     comment_text: str
+    parentCommentId: Optional[str] = None 
     created_at: datetime = datetime.utcnow()
 
 class CommentOut(Comment):

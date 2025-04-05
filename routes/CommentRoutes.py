@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from models.CommentModel import Comment 
-from controllers.CommentController import add_comment,get_all_comments,get_recent_comments
+from controllers.CommentController import add_comment,get_all_comments,get_recent_comments,get_user_comments,get_comment_by_news
 
 router = APIRouter()
 
@@ -19,3 +19,13 @@ async def getComments():
 @router.get("/comments/recent/{id}")
 async def getRecentComments(id:str):
     return await get_recent_comments(id)
+
+@router.get("/comments/user/{id}")
+async def getUserComments(id:str):
+    return await get_user_comments(id)
+
+@router.get("/comments/news/{id}")
+async def getCommentbyNews(id:str):
+    return await get_comment_by_news(id)
+
+
