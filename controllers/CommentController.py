@@ -129,7 +129,8 @@ async def get_comment_by_news(id:str):
                 "id": str(c["_id"]),
                 "user": user,  # You can use c.get("userid", "Unknown") if unsure
                 "text": c["comment_text"],
-                "created_at": c["created_at"]
+                "created_at": c["created_at"],
+                "parentCommentId": str(c["parentCommentId"]),
             })
 
 
