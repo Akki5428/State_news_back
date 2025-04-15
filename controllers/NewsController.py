@@ -1,4 +1,4 @@
-from models.NewsModel import News,NewsOut,ApproveNews,RejectedNews,UpdateNewsRequest
+from models.NewsModel import News,NewsOut,ApproveNews,RejectedNews,UpdateNewsRequest,UpdateNews_Request
 from bson import ObjectId
 from config.database import city_collection,state_collection,news_collection,user_collection,role_collection
 from fastapi import APIRouter,HTTPException
@@ -39,9 +39,11 @@ async def make_roles(news):
 
 async def addNews(news:News):
     news = news.dict()
+    # print(news.cityId)
     news["cityId"] = ObjectId(news["cityId"])
     news["stateId"] = ObjectId(news["stateId"]) 
     news["userId"] = ObjectId(news["userId"])
+    news["isBreaking"] = news["isBreaking"] == "yes" 
     pub_news = await news_collection.insert_one(news)
     print(pub_news)
     return JSONResponse(content={"message":"News Added"},status_code=201)
@@ -450,7 +452,21 @@ async def approve_news(id:str):
         return JSONResponse(content={"message":"Your News is Published"},status_code=201)
     else:
         raise HTTPException(status_code=404,detail="News not Found")
-    
+
+async def submit_news(id:str):
+    news = await news_collection.find_one({"_id" : ObjectId(id)})
+    print(news)
+    print(id)
+    if news:
+        print(news)
+        await news_collection.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": {"status": "inProgress"}}
+        )
+        return JSONResponse(content={"message":"Your News is Submitted"},status_code=201)
+    else:
+        raise HTTPException(status_code=404,detail="News not Found") 
+
 async def reject_news(reject:RejectedNews):
     news = await news_collection.find_one({"_id" : ObjectId(reject.id)})
     print(news)
@@ -548,3 +564,41 @@ async def get_news_by_user(id:str):
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
+
+async def updatenews(update_data: UpdateNews_Request):
+    news = await news_collection.find_one({"_id": ObjectId(update_data.id)})
+
+    if not news:
+        raise HTTPException(status_code=404, detail="News not found")
+
+    # Remove selected images from the existing image list
+    # updated_images = [img for img in news.get("images", []) if img not in update_data.removeImages]
+    # updated_images.extend(update_data.newImages)  # Add new images
+
+    # Prepare update fields
+    update_fields = {}
+    if update_data.title:
+        update_fields["title"] = update_data.title
+    if update_data.status:
+        update_fields["status"] = update_data.status
+    if update_data.content:
+        update_fields["content"] = update_data.content
+    if update_data.category:
+        update_fields["category"] = update_data.category
+    if update_data.stateId:
+        update_fields["stateId"] = ObjectId(update_data.stateId)
+    if update_data.cityId:
+        update_fields["cityId"] = ObjectId(update_data.cityId)
+    if update_data.isBreaking is not None:
+        update_fields["isBreaking"] = update_data.isBreaking
+        print("Hello")
+        print(update_data.isBreaking == "yes" )
+        print(update_data.isBreaking)
+    update_fields["images"] = update_data.images
+
+    # Update in DB
+    await news_collection.update_one(
+        {"_id": ObjectId(update_data.id)},
+        {"$set": update_fields}
+    )
+

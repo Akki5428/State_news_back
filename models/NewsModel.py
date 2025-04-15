@@ -49,4 +49,17 @@ class UpdateNewsRequest(BaseModel):
     content: Optional[str] = None
     removeImages: Optional[List[str]] = []  # List of image URLs to remove
 
+class UpdateNews_Request(BaseModel):
+    id: str
+    status:str
+    title: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    stateId: Optional[str] = None
+    cityId: Optional[str] = None
+    isBreaking: Optional[bool] = None
+    removeImages: Optional[List[str]] = []  # URLs of images to remove
+    newImages: Optional[List[str]] = [] 
+    images: Optional[List[str]] = [] 
+     # URLs of new images to add
 

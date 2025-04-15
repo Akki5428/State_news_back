@@ -1,6 +1,6 @@
 from fastapi import APIRouter,HTTPException
-from controllers.NewsController import addNews,getNews,getNewsById,getNewsByStateId,getNewsByCityId,deleteNews,approve_news,get_published_news,get_breaking_news,get_trending_news,get_popular_news,get_category_news,get_categoryByName_news,get_recent_news,get_news_sort_bydate,delete_news,get_approve_news,reject_news,update_news,get_recent_news_by_user,get_news_by_user
-from models.NewsModel import News,ApproveNews,RejectedNews,UpdateNewsRequest
+from controllers.NewsController import addNews,getNews,getNewsById,getNewsByStateId,getNewsByCityId,deleteNews,approve_news,get_published_news,get_breaking_news,get_trending_news,get_popular_news,get_category_news,get_categoryByName_news,get_recent_news,get_news_sort_bydate,delete_news,get_approve_news,reject_news,update_news,get_recent_news_by_user,get_news_by_user,updatenews,submit_news
+from models.NewsModel import News,ApproveNews,RejectedNews,UpdateNewsRequest,UpdateNews_Request
 from bson import ObjectId
 
 router = APIRouter()
@@ -72,11 +72,15 @@ async def deleteNews(news_id:str):
 async def approveNews(news_id:str):
     return await approve_news(news_id)
 
+@router.patch("/news/submit/{news_id}")
+async def submitNews(news_id:str):
+    return await submit_news(news_id)
+
 @router.patch("/news/rejected/")
 async def rejectNews(news:RejectedNews):
     return await reject_news(news)
 
-@router.put("/news/update/")
+@router.put("/news/update/short/")
 async def updateNews(news:UpdateNewsRequest):
     return await update_news(news)
 
@@ -87,5 +91,9 @@ async def get_RecentNewsByUser(user_id:str):
 @router.get("/news/user/{user_id}")
 async def get_NewsByUser(user_id:str):
     return await get_news_by_user(user_id)
+
+@router.put("/news/update/")
+async def update_News(news:UpdateNews_Request):
+    return await updatenews(news)
 
 

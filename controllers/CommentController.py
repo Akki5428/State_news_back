@@ -68,12 +68,12 @@ async def get_all_comments():
     return [CommentOut(**comment) for comment in comments]
 
 async def get_recent_comments(id:str):
-    comments = await comment_collection.find({"rId":ObjectId(id)}).sort("created_at", -1).limit(5).to_list(5)
+    comments = await comment_collection.find({"rId":ObjectId(id),"parentCommentId": None}).sort("created_at", -1).limit(5).to_list(5)
     for c in comments:
         c["userId"] = str(c["userId"])
         c["newsId"] = str(c["newsId"])
         c["rId"] = str(c["rId"])
-        c["parentCommentId"] = ObjectId(c["parentCommentId"]) if c["parentCommentId"] else None
+        c["parentCommentId"] = str(c["parentCommentId"]) if c["parentCommentId"] else None
 
         news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
         if news:
