@@ -425,7 +425,7 @@ async def get_recent_news():
 
 async def get_news_sort_bydate():
 
-    news = await news_collection.find().sort("news_date", -1).to_list()
+    news = await news_collection.find({"status": {"$ne": "draft"}}).sort("news_date", -1).to_list()
 
     for i in range(len(news)):
         news[i] = await make_roles(news[i]) 
