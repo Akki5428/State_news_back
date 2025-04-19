@@ -230,7 +230,7 @@ async def get_published_news():
 
 
 async def get_breaking_news():
-    news = await news_collection.find({"isBreaking": True}).sort("news_date", -1).to_list()
+    news = await news_collection.find({"isBreaking": True,"status":"published"}).sort("news_date", -1).to_list()
     for n in news:
         if "cityId" in n and isinstance(n["cityId"], ObjectId):
             n["cityId"] = str(n["cityId"])
@@ -260,9 +260,9 @@ async def get_breaking_news():
     return [NewsOut(**n) for n in news]
 
 async def get_trending_news():
-    time_threshold = datetime.utcnow() - timedelta(hours=100)
+    time_threshold = datetime.utcnow() - timedelta(hours=600)
     
-    trending_news = await news_collection.find({"news_date": {"$gte": time_threshold}}).to_list()
+    trending_news = await news_collection.find({"news_date": {"$gte": time_threshold},"status":"published"}).to_list()
 
     # Apply Trending Formula
     for news in trending_news:
@@ -302,7 +302,7 @@ async def get_trending_news():
     return [NewsOut(**n) for n in news]
 
 async def get_popular_news():
-    news = await news_collection.find().sort("views", -1).to_list()
+    news = await news_collection.find({"status":"published"}).sort("views", -1).to_list()
     print(news)
 
     for n in news:
@@ -334,7 +334,7 @@ async def get_popular_news():
     return [NewsOut(**n) for n in news]
 
 async def get_category_news():
-    news = await news_collection.find().sort("news_date", -1).to_list()
+    news = await news_collection.find({"status":"published"}).sort("news_date", -1).to_list()
     for n in news:
         if "cityId" in n and isinstance(n["cityId"], ObjectId):
             n["cityId"] = str(n["cityId"])
@@ -364,7 +364,7 @@ async def get_category_news():
     return [NewsOut(**n) for n in news]
 
 async def get_categoryByName_news(category:str):
-    news = await news_collection.find({"category":category }).sort("news_date", -1).to_list()
+    news = await news_collection.find({"category":category ,"status":"published"}).sort("news_date", -1).to_list()
     for n in news:
         if "cityId" in n and isinstance(n["cityId"], ObjectId):
             n["cityId"] = str(n["cityId"])
@@ -502,7 +502,7 @@ async def update_news(update_data: UpdateNewsRequest):
     # Perform update
     await news_collection.update_one(
         {"_id": ObjectId(update_data.id)},
-        {"$set": update_fields}
+        # {"$set": update_fields}
     )
 
 async def get_recent_news_by_user(id:str):
