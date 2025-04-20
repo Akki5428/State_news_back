@@ -3,13 +3,39 @@ from bson import ObjectId
 from config.database import user_collection,role_collection
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
+from util.send_email import send_mail
 import bcrypt
 
 
 async def addUser(user:User):
     result = await user_collection.insert_one(user.dict())
+    user_email = user.email
+    subject="🗞️ Welcome! Here’s Today’s Top Highlight"
+
+    body = """
+    <h2>📰 Welcome to State-City News Portal</h2>
+    <p>Dear Reader,</p>
+    <img src="https://res.cloudinary.com/dmwmbomir/image/upload/v1745178043/ijkvzblo1uwg4awrji6p.jpg" alt="News Image" style="max-width: 100%; height: auto;" />
+
+    <p>Thank you for signing up with <strong>StateBuzz: State-City News</strong> – your go-to platform for reliable and real-time news updates from every state and city across India.</p>
+    
+    <p>Here’s what you can expect:</p>
+    <ul>
+        <li>🌍 Local & National News</li>
+        <li>🗳️ Live Election Coverage</li>
+        <li>📸 Exclusive Reports with Images</li>
+        <li>📢 Citizen Journalism Features</li>
+    </ul>
+
+    <p>Attached is today’s top highlight. Stay informed and engaged!</p>
+    <br>
+    <p>Best regards,<br><em>StateBuzz: State-City News Team</em></p>
+    """
+
+    send_mail(user_email, subject, body, None)
     
     return {"Message":"user created successfully"}
+
     
 
 # async def getAllUsers():

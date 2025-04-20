@@ -48,11 +48,11 @@ async def get_all_comments():
         c["userId"] = str(c["userId"])
         c["newsId"] = str(c["newsId"])
         c["rId"] = str(c["rId"])
-        c["parentCommentId"] = ObjectId(c["parentCommentId"]) if c["parentCommentId"] else None
+        c["parentCommentId"] = str(c["parentCommentId"]) if c["parentCommentId"] else None
 
         news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
 
-        # print(news)
+        print(news)
         if news:
             news["_id"] = str(news["_id"])
             news["userId"] = str(news["userId"])
@@ -142,3 +142,31 @@ async def get_comment_by_news(id:str):
 
     return result
 
+async def get_comment_by_news_only(id:str):
+    # news = await news_collection.find({"_id":ObjectId(id)}).to_list()
+    result = []
+
+    # for n in news:
+    news_id = str(id)
+    comments = await comment_collection.find({"newsId":ObjectId(news_id)}).to_list()
+
+    formatted_comments = []
+    for c in comments:
+            user = await user_collection.find_one({"_id":ObjectId(c["userId"])})
+            user["_id"] = str(user["_id"])
+            formatted_comments.append({
+                "id": str(c["_id"]),
+                "user": user,  # You can use c.get("userid", "Unknown") if unsure
+                "text": c["comment_text"],
+                "created_at": c["created_at"],
+                "parentCommentId": str(c["parentCommentId"]),
+            })
+
+
+    result.append({
+            "comments": formatted_comments
+    })
+
+    print(result)
+
+    return result

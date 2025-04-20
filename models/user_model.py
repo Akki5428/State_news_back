@@ -10,8 +10,10 @@ class User(BaseModel):
     lastName:str
     email:str
     password:str
-    pressId:str
-    organization:str
+    pressId:Optional[str] = None
+    organization:Optional[str] = None
+    proofId:Optional[str] = None
+    workLink:Optional[str] = None
     role_id:str
     created_at:datetime = datetime.utcnow()
     status:str = "pending"
