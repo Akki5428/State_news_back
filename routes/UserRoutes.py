@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from controllers.user_controller import addUser,getAllUsers,loginUser,get_recentUser,get_AllUsers_byDate,get_user_byId,approve_user,delete_user,block_user,reject_user
-from models.user_model import User,UserOut,UserLogin,RejectedUser
+from controllers.user_controller import addUser,getAllUsers,loginUser,get_recentUser,get_AllUsers_byDate,get_user_byId,approve_user,delete_user,block_user,reject_user,forgotPassword,resetPassword
+from models.user_model import User,UserOut,UserLogin,RejectedUser,ResetPasswordReq
 
 router = APIRouter()
 
@@ -43,3 +43,11 @@ async def deleteUser(user_id:str):
 @router.put("/user/rejected/")
 async def rejectUser(reject:RejectedUser):
     return await reject_user(reject)
+
+@router.post("/user/forget/{email}")
+async def forgetPassword(email:str):
+    return await forgotPassword(email)
+
+@router.post("/user/reset/")
+async def reset_Password(data:ResetPasswordReq):
+    return await resetPassword(data)

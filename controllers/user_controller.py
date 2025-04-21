@@ -1,17 +1,20 @@
-from models.user_model import User,UserOut,UserLogin,RejectedUser
+from models.user_model import User,UserOut,UserLogin,RejectedUser,ResetPasswordReq
 from bson import ObjectId
 from config.database import user_collection,role_collection
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from util.send_email import send_mail
+from datetime import datetime,timedelta
+import jwt
 import bcrypt
 
 
 async def addUser(user:User):
     user = user.dict()
-    user["role_id"] = ObjectId(user["role_id"])
     if user["role_id"] == "67cf074ecbd63e6e033ef9e6":
+        print(user["status"])
         user["status"] = "approved"
+    user["role_id"] = ObjectId(user["role_id"])
     result = await user_collection.insert_one(user)
 
     user_email = user["email"]
@@ -66,8 +69,6 @@ async def addUser(user:User):
     
     return {"Message":"user created successfully"}
 
-    
-
 # async def getAllUsers():
 #     users = await user_collection.find().to_list()
 #     print("users",users)
@@ -99,6 +100,9 @@ async def loginUser(request:UserLogin):
     
     if foundUser is None:
         raise HTTPException(status_code=404,detail="User not found")
+    
+    print(request.password)
+    print(foundUser["password"])
 
     if "password" in foundUser and bcrypt.checkpw(request.password.encode(),foundUser["password"].encode()):
         role = await role_collection.find_one({"_id":ObjectId(foundUser["role_id"])})
@@ -249,5 +253,48 @@ async def reject_user(reject:RejectedUser):
         return JSONResponse(content={"message":"User is Rejected"},status_code=201)
     else:
         raise HTTPException(status_code=404,detail="User not Found")
-
     
+SECRET_KEY = "Royal"
+
+def generate_token(email: str):
+    
+    expiration = datetime.utcnow() + timedelta(hours=1)
+    payload = {"sub": email, "exp": expiration}
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return token
+ 
+async def forgotPassword(email: str):
+    foundUser = await user_collection.find_one({"email": email})
+    if not foundUser:
+        raise HTTPException(status_code=404, detail="Email not found")
+    
+    token = generate_token(email)
+    resetLink = f"http://localhost:5173/resetpassword/{token}"
+    body = f"""
+    <html>
+        <h1>HELLO THIS IS RESET PASSWORD LINK. IT EXPIRES IN 1 HOUR</h1>
+        <a href="{resetLink}">RESET PASSWORD</a>
+    </html>
+    """
+    subject = "RESET PASSWORD"
+    send_mail(email, subject, body)
+    return {"message": "Reset link sent successfully"}
+
+async def resetPassword(data: ResetPasswordReq):
+    try:
+        payload = jwt.decode(data.token, SECRET_KEY, algorithms="HS256")  # Payload: {"sub": "email...", "exp": ...}
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=421, detail="Token is not valid")
+        
+        hashed_password = bcrypt.hashpw(data.password.encode('utf-8'), bcrypt.gensalt()).decode("utf-8")
+        await user_collection.update_one({"email": email}, {"$set": {"password": hashed_password}})
+        
+        return {"message": "Password updated successfully"}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401, 
+            detail="The reset password link has expired. Please request a new one."
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=400, detail="Invalid token provided")

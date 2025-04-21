@@ -45,6 +45,8 @@ def send_mail(to, subject, body, attachment_path=None):
     return {"message": "Email sent successfully"}
 
 
+
+
 # if __name__ == "__main__":
 #     html_news_message = """
 #     <h2>📰 Welcome to State-City News Portal</h2>

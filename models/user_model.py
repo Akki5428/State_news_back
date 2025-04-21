@@ -50,5 +50,6 @@ class RejectedUser(BaseModel):
     id:str
     rejectReason: Optional[str] = None  
 
-    
-        
+class ResetPasswordReq(BaseModel):
+    token: str
+    password: str
