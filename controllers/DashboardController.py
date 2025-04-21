@@ -3,7 +3,7 @@ from config.database import user_collection,news_collection
 from bson import ObjectId
 
 async def get_dashboard_stats():
-    users = await user_collection.find().to_list()
+    users = await user_collection.find({"role_id": { "$ne": ObjectId("67cf06f9cbd63e6e033ef9e2") }}).to_list()
     news = await news_collection.find().to_list()
 
     total_users = len(users)

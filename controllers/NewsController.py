@@ -32,6 +32,7 @@ async def make_roles(news):
             role["_id"] = str(role["_id"])
             user["role"] = role
         user["_id"] = str(user["_id"])
+        user["role_id"] = str(user["role_id"])
         news["user"] = user
 
     return news
@@ -176,6 +177,7 @@ async def getNewsByCityId(city_id:str):
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
    return [NewsOut(**n) for n in news]
@@ -224,6 +226,7 @@ async def get_published_news():
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -255,6 +258,7 @@ async def get_breaking_news():
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -297,6 +301,7 @@ async def get_trending_news():
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -329,6 +334,7 @@ async def get_popular_news():
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -359,6 +365,7 @@ async def get_category_news():
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -389,6 +396,7 @@ async def get_categoryByName_news(category:str):
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -419,6 +427,7 @@ async def get_recent_news():
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -531,6 +540,7 @@ async def get_recent_news_by_user(id:str):
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
@@ -561,6 +571,7 @@ async def get_news_by_user(id:str):
         user = await user_collection.find_one({"_id":ObjectId(n["userId"])})
         if user:
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             n["user"] = user
 
     return [NewsOut(**n) for n in news]
