@@ -125,6 +125,7 @@ async def get_comment_by_news(id:str):
         for c in comments:
             user = await user_collection.find_one({"_id":ObjectId(c["userId"])})
             user["_id"] = str(user["_id"])
+            user["role_id"] = str(user["role_id"])
             formatted_comments.append({
                 "id": str(c["_id"]),
                 "user": user,  # You can use c.get("userid", "Unknown") if unsure

@@ -511,7 +511,7 @@ async def update_news(update_data: UpdateNewsRequest):
     # Perform update
     await news_collection.update_one(
         {"_id": ObjectId(update_data.id)},
-        # {"$set": update_fields}
+        {"$set": update_fields}
     )
 
 async def get_recent_news_by_user(id:str):
