@@ -96,7 +96,7 @@ async def get_user_comments(id:str):
         c["userId"] = str(c["userId"])
         c["newsId"] = str(c["newsId"])
         c["rId"] = str(c["rId"])
-        c["parentCommentId"] = ObjectId(c["parentCommentId"]) if c["parentCommentId"] else None
+        c["parentCommentId"] = str(c["parentCommentId"]) if c["parentCommentId"] else None
 
         news = await news_collection.find_one({"_id": ObjectId(c["newsId"])})
         if news:
@@ -123,9 +123,15 @@ async def get_comment_by_news(id:str):
 
         formatted_comments = []
         for c in comments:
-            user = await user_collection.find_one({"_id":ObjectId(c["userId"])})
-            user["_id"] = str(user["_id"])
-            user["role_id"] = str(user["role_id"])
+            
+            try:
+                user = await user_collection.find_one({"_id":ObjectId(c["userId"])})
+                user["_id"] = str(user["_id"])
+                user["role_id"] = str(user["role_id"])
+            except Exception as e:
+                print(f"Error fetching user: {e}")
+                user = None
+            
             formatted_comments.append({
                 "id": str(c["_id"]),
                 "user": user,  # You can use c.get("userid", "Unknown") if unsure

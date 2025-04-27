@@ -18,6 +18,7 @@ async def make_roles(news):
     city = await city_collection.find_one({"_id":ObjectId(news["cityId"])})
     if city:
         city["_id"] = str(city["_id"])
+        city["state_id"] = str(city["state_id"])
         news["city"] = city
         
     state = await state_collection.find_one({"_id":ObjectId(news["stateId"])})
@@ -167,6 +168,7 @@ async def getNewsByCityId(city_id:str):
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -216,6 +218,7 @@ async def get_published_news():
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -248,6 +251,7 @@ async def get_breaking_news():
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -291,6 +295,7 @@ async def get_trending_news():
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -324,6 +329,7 @@ async def get_popular_news():
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -355,6 +361,7 @@ async def get_category_news():
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -386,6 +393,7 @@ async def get_categoryByName_news(category:str):
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -417,6 +425,7 @@ async def get_recent_news():
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -530,6 +539,7 @@ async def get_recent_news_by_user(id:str):
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})
@@ -561,6 +571,7 @@ async def get_news_by_user(id:str):
 
         if city:
             city["_id"] = str(city["_id"])
+            city["state_id"] = str(city["state_id"])
             n["city"] = city
         
         state = await state_collection.find_one({"_id":ObjectId(n["stateId"])})

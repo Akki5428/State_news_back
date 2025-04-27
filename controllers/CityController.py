@@ -6,7 +6,9 @@ from fastapi.responses import JSONResponse
 
 
 async def addCity(city:City):
-    savedCity = await city_collection.insert_one(city.dict())
+    city = city.dict()
+    city["state_id"] = ObjectId(city["state_id"])
+    savedCity = await city_collection.insert_one(city)
     return JSONResponse(content={"message":"city added"},status_code=201)
 
 
@@ -27,7 +29,7 @@ async def getCity():
 
 async def getCityByStateId(state_id:str):
     print("state id",state_id)
-    cities = await city_collection.find({"state_id":state_id}).to_list()
+    cities = await city_collection.find({"state_id":ObjectId(state_id)}).to_list()
     for city in cities:
         if "state_id" in city and isinstance(city["state_id"], ObjectId):
             city["state_id"] = str(city["state_id"])

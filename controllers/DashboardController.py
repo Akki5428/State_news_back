@@ -6,9 +6,10 @@ async def get_dashboard_stats():
     users = await user_collection.find({"role_id": { "$ne": ObjectId("67cf06f9cbd63e6e033ef9e2") }}).to_list()
     news = await news_collection.find().to_list()
 
+    # print(users[0]["status"])
     total_users = len(users)
     total_news = len(news)
-    print(news[0]["status"])
+    # print(news[0]["status"])
     pending_news = len([n for n in news if n["status"] == "inProgress"])
     pending_user = len([u for u in users if u["status"] == "pending"])
 

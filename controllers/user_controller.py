@@ -95,11 +95,12 @@ async def getAllUsers():
 async def loginUser(request:UserLogin):    
     foundUser = await user_collection.find_one({"email":request.email})
 
+    if foundUser is None:
+        raise HTTPException(status_code=404,detail="User not found")
+    
     foundUser["_id"] = str(foundUser["_id"])
     foundUser["role_id"] = str(foundUser["role_id"])
     
-    if foundUser is None:
-        raise HTTPException(status_code=404,detail="User not found")
     
     print(request.password)
     print(foundUser["password"])
